@@ -1,106 +1,109 @@
- <!DOCTYPE html>
-
-
-<!-- Ultimate Game Stash file--> 
-<!-- For the regularly updating doc go to https://docs.google.com/document/d/1_FmH3BlSBQI7FGgAQL59-ZPe8eCxs35wel6JUyVaG8Q/ -->
-
-
-
-
+<!DOCTYPE html>
 <html lang="en-us">
-  <base href="https://cdn.jsdelivr.net/gh/bubbls/UGS-Assets@main/wacky-flip/">
 <head>
-  <meta charset="utf-8" />
-  <title>Tung</title>
-  <style>
-    html, body { background: #000; width: 100%; height: 100%; overflow: hidden; padding: 0; margin: 0; }
-    #gameContainer { position: absolute; }
-    #gameContainer canvas { position: absolute; }
-  </style>
+<base href = "https://cdn.jsdelivr.net/gh/Pok12d/ta@main/tungobby/">
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  
+  <link rel="stylesheet" href="TemplateData/style.css">
+  <link rel="shortcut icon" href="TemplateData/favicon.ico">
 </head>
 <body>
-
-  <script id="gmsoft-jssdk" src="gmsoftsdk_v5.js"></script>
-
-  <div id="gameContainer" style="display:none;">
+  <div id="unity-container">
     <canvas id="unity-canvas"></canvas>
+    <div id="unity-preview"><img src="TemplateData/preview.png" alt="Preview"></div>
+      <div id="unity-game-title">
+        <div class="line-1">Tung Tung Sahur</div>
+        <div class="line-2">Obby Challenge</div>
+      </div>
+    <div id="unity-loading-bar">
+      <div id="unity-progress-bar-empty">
+        <div id="unity-progress-bar-full"></div>
+      </div>
+    </div>
+    <div id="unity-loading-text">Loading</div>
+    <div id="unity-warning"></div>
+    <div id="unity-footer"></div>
   </div>
 
-  <div id="loadingBar" style="color:white; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); font-family:Arial;">
-    loading... <span id="pct">0%</span>
+  <div id="orientation-warning" style="display: none;">
+    <img src="TemplateData/rotate-device.png" alt="Rotate Device" style="width: 150px; margin-bottom: 20px;">
+    Please rotate your device to <strong>landscape mode</strong> and reload the game.
   </div>
-<script>
-  function firebaseLogEvent(event_name) {
-    console.log('firebaseLogEvent (stubbed):', event_name);
-  }
-  function firebaseLogEventParameter(event_name, event_param) {
-    console.log('firebaseLogEventParameter (stubbed):', event_name, event_param);
-  }
-  function firebaseSetUserProperties(props) {
-    console.log('firebaseSetUserProperties (stubbed):', props);
-  }
-</script>
-       //script>
-      window.fileMergerConfig = {
-        files: [
-          { name: 'wacky-flip-v25050510.data.unityweb', parts: 2 },
-        ],
-        basePath: 'Build/',
-        debug: true
-      };
-    script>
 
-    //cript src="https://cdn.jsdelivr.net/gh/bubbls/UGS-Assets@main/merge.js"></script>
   <script>
-    var canvas = document.getElementById("unity-canvas");
-    var container = document.getElementById("gameContainer");
-    var loadingBar = document.getElementById("loadingBar");
+    const container = document.getElementById("unity-container");
+    const canvas = document.getElementById("unity-canvas");
+    const loadingBar = document.getElementById("unity-loading-bar");
+    const progressBarFull = document.getElementById("unity-progress-bar-full");
+    const loadingText = document.getElementById("unity-loading-text");
+    const warningBanner = document.getElementById("unity-warning");
+    const gameTitle = document.getElementById("unity-game-title");
+    const unityPreview = document.getElementById("unity-preview");
+    const orientationWarning = document.getElementById("orientation-warning");
 
-    var buildUrl = "Build";
-    var config = {
-      dataUrl:         buildUrl + "/wacky-flip-v25050510.data.unityweb",
-      frameworkUrl:    buildUrl + "/wacky-flip-v25050510.framework.js",
-      codeUrl:         buildUrl + "/wacky-flip-v25050510.wasm.unityweb",
+    function updateLoadingText(progress) {
+      loadingText.innerText = "Loading " + Math.round(progress * 100) + "%";
+    }
+
+    function unityShowBanner(msg, type) {
+      const div = document.createElement('div');
+      div.innerHTML = msg;
+      if (type === 'error') div.style = 'background: red; padding: 10px;';
+      else div.style = 'background: yellow; padding: 10px;';
+      warningBanner.appendChild(div);
+      if (type !== 'error') setTimeout(() => div.remove(), 5000);
+    }
+
+    const buildUrl = "Build";
+    const loaderUrl = buildUrl + "/TungTungSahur-ObbyChallenge-v.1.1.loader.js";
+    const config = {
+      dataUrl: buildUrl + "/TungTungSahur-ObbyChallenge-v.1.1.data.unityweb",
+      frameworkUrl: buildUrl + "/TungTungSahur-ObbyChallenge-v.1.1.framework.js.unityweb",
+      codeUrl: buildUrl + "/TungTungSahur-ObbyChallenge-v.1.1.wasm.unityweb",
       streamingAssetsUrl: "StreamingAssets",
-      companyName: "azgames.io",
-      productName: "Tung Sahur Horror",
-      productVersion: "25051505",
-      pubId: "",
-      gameId: "tung-sahur-horror",
-      enableMoreGame: "yes",
-      enablePromotion: true,
-      eventLog: false
+      companyName: "Nexus",
+      productName: "Tung Tung Sahur: Obby Challenge",
+      productVersion: "0.1",
+      showBanner: unityShowBanner,
     };
 
-    function onResize() {
-      var w = window.innerWidth;
-      var h = window.innerHeight;
-      var r = 540 / 960;
-      if (w * r > h) w = Math.ceil(h / r);
-      h = Math.floor(w * r);
-      container.style.width  = canvas.style.width  = w + "px";
-      container.style.height = canvas.style.height = h + "px";
-      container.style.top  = Math.floor((window.innerHeight - h) / 2) + "px";
-      container.style.left = Math.floor((window.innerWidth  - w) / 2) + "px";
-    }
-    onResize();
-    window.addEventListener("resize", onResize);
+    function checkOrientation() {
+      const isPortrait = window.innerHeight > window.innerWidth;
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
-    var script = document.createElement("script");
-    script.src = buildUrl + "/wacky-flip-v25050510.loader.js";
-    script.onload = function() {
-      createUnityInstance(canvas, config, function(progress) {
-        document.getElementById("pct").innerText = Math.round(progress * 100) + "%";
-      }).then(function(instance) {
-        window.unityInstance = instance;
-        setTimeout(function() {
-          loadingBar.style.display = "none";
-          container.style.display = "block";
-          window.focus();
-        }, 2000);
-      }).catch(function(msg) {
-        alert(msg);
-      });
+      if (isMobile && isPortrait) {
+        orientationWarning.style.display = "flex";
+        container.style.display = "none";
+      } else {
+        orientationWarning.style.display = "none";
+        container.style.display = "block";
+      }
+    }
+
+    window.addEventListener("orientationchange", () => {
+      setTimeout(() => {
+        checkOrientation();
+        location.reload();
+      }, 300);
+    });
+
+    window.addEventListener("resize", checkOrientation);
+    window.addEventListener("load", checkOrientation);
+
+    // Запуск Unity
+    const script = document.createElement("script");
+    script.src = loaderUrl;
+    script.onload = () => {
+      createUnityInstance(canvas, config, (progress) => {
+        progressBarFull.style.width = 100 * progress + "%";
+        updateLoadingText(progress);
+      }).then((unityInstance) => {
+        loadingBar.style.display = "none";
+        unityPreview.style.display = "none";
+        loadingText.style.display = "none";
+        gameTitle.style.display = "none";
+      }).catch((message) => alert(message));
     };
     document.body.appendChild(script);
   </script>

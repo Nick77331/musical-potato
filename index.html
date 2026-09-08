@@ -1,199 +1,108 @@
-<!DOCTYPE html>
-<html>
+ <!DOCTYPE html>
+
+
+<!-- Ultimate Game Stash file--> 
+<!-- For the regularly updating doc go to https://docs.google.com/document/d/1_FmH3BlSBQI7FGgAQL59-ZPe8eCxs35wel6JUyVaG8Q/ -->
+
+
+
+
+<html lang="en-us">
+  <base href="https://cdn.jsdelivr.net/gh/bubbls/UGS-Assets@main/wacky-flip/">
 <head>
-    <title>UGS Files</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #2e3244 0%, #36224b 100%);
-            min-height: 100vh;
-            margin: 0;
-            padding: 0;
-            display: flex;
-        }
-
-        .sidebar {
-            position: fixed;
-            left: 0;
-            top: 0;
-            width: 80px;
-            height: 100vh;
-            background: rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(10px);
-            padding: 20px 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            overflow-y: auto;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.3);
-            z-index: 1000;
-        }
-
-        .sidebar::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .sidebar::-webkit-scrollbar-track {
-            background: rgba(255,255,255,0.1);
-        }
-
-        .sidebar::-webkit-scrollbar-thumb {
-            background: rgba(255,255,255,0.3);
-            border-radius: 3px;
-        }
-
-        .sidebar-btn {
-            background: rgb(89, 134, 218);
-            border: none;
-            padding: 12px;
-            font-size: 18px;
-            font-weight: 700;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            color: white;
-            text-align: center;
-            min-height: 45px;
-        }
-
-        .sidebar-btn:hover {
-            background: #79aadb;
-            transform: scale(1.05);
-        }
-
-        .sidebar-btn.empty {
-            opacity: 0.4;
-            cursor: default;
-        }
-
-        .sidebar-btn.empty:hover {
-            transform: none;
-            background: rgb(89, 134, 218);
-        }
-
-        .main-content {
-            margin-left: 100px;
-            flex: 1;
-            padding: 20px;
-        }
-
-        h1 {
-            color: white;
-            text-align: center;
-            margin-bottom: 30px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-
-        .letter-section {
-            margin-bottom: 40px;
-            padding: 0 20px;
-            max-width: 900px;
-            margin-left: auto;
-            margin-right: auto;
-            min-height: 100px;
-        }
-
-        .letter-section.empty {
-            opacity: 0.5;
-        }
-
-        .letter-header {
-            color: white;
-            font-size: 32px;
-            font-weight: bold;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 3px solid rgba(255,255,255,0.3);
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-
-        .buttons-container {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .empty-message {
-            color: rgba(255,255,255,0.6);
-            font-style: italic;
-            text-align: center;
-            padding: 20px;
-        }
-
-        input[type="button"] {
-            background: rgb(89, 134, 218);
-            border: none;
-            padding: 15px 30px;
-            font-size: 16px;
-            font-weight: 500;
-            border-radius: 8px;
-            cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
-            width: 100%;
-            max-width: 600px;
-            color: white;
-            text-align: left;
-        }
-
-        input[type="button"]:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
-            background: #79aadb;
-        }
-
-        input[type="button"]:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 60px;
-                padding: 15px 5px;
-            }
-            .sidebar-btn {
-                padding: 8px;
-                font-size: 16px;
-            }
-            .main-content {
-                margin-left: 70px;
-            }
-        }
-    </style>
+  <meta charset="utf-8" />
+  <title>Tung</title>
+  <style>
+    html, body { background: #000; width: 100%; height: 100%; overflow: hidden; padding: 0; margin: 0; }
+    #gameContainer { position: absolute; }
+    #gameContainer canvas { position: absolute; }
+  </style>
 </head>
 <body>
-    <div class="sidebar" id="sidebar">
-    </div>
 
-    <div class="main-content">
-        <h1>UGS Files</h1>
-    <h2 style="color: white; text-align: center; margin-bottom: 30px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); font-weight: normal; font-size: 18px;">
-    Files from 
-    <a href="https://docs.google.com/document/d/1_FmH3BlSBQI7FGgAQL59-ZPe8eCxs35wel6JUyVaG8Q/" 
-        target="_blank" 
-        style="display: inline; color: #79aadb; text-decoration: none; font-size: 18px; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);">
-        Ultimate Game Stash Google Doc
-    </a>
-    </h2>
-    <h2 style="color: white; text-align: center; margin-bottom: 30px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); font-weight: normal; font-size: 18px;">
-    Discord Server:
-    <a href="https://discord.gg/rmVsAqkpkA" 
-        target="_blank" 
-        style="display: inline; color: #79aadb; text-decoration: none; font-size: 18px; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);">
-        https://discord.gg/rmVsAqkpkA
-    </a>
-    <h2 style="color: white; text-align: center; margin-bottom: 30px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); font-weight: normal; font-size: 18px;">
-        <input type="text" placeholder="Search..." id="searchInput" style="padding: 13px; width: 100%; max-width: 420px; border-radius: 8px; border: none; box-shadow: 0 2px 4px rgba(7, 105, 218, 0.1);">
-        <script src="https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile@main/searchbut.js"></script>
-    <button id="lolbutton" onclick="const script = document.createElement('script');script.src = 'https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile@latest/game.js';document.body.appendChild(script);">Click to load if it isnt loading</button>
-    </h2> 
+  <script id="gmsoft-jssdk" src="gmsoftsdk_v5.js"></script>
 
-        
-        <div id="sections-container">  
-        </div>
-    </div>
-    <script src="https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile@main/games.js"></script>
-   </body> 
-   </html>
+  <div id="gameContainer" style="display:none;">
+    <canvas id="unity-canvas"></canvas>
+  </div>
+
+  <div id="loadingBar" style="color:white; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); font-family:Arial;">
+    loading... <span id="pct">0%</span>
+  </div>
+<script>
+  function firebaseLogEvent(event_name) {
+    console.log('firebaseLogEvent (stubbed):', event_name);
+  }
+  function firebaseLogEventParameter(event_name, event_param) {
+    console.log('firebaseLogEventParameter (stubbed):', event_name, event_param);
+  }
+  function firebaseSetUserProperties(props) {
+    console.log('firebaseSetUserProperties (stubbed):', props);
+  }
+</script>
+       //script>
+      window.fileMergerConfig = {
+        files: [
+          { name: 'wacky-flip-v25050510.data.unityweb', parts: 2 },
+        ],
+        basePath: 'Build/',
+        debug: true
+      };
+    script>
+
+    //cript src="https://cdn.jsdelivr.net/gh/bubbls/UGS-Assets@main/merge.js"></script>
+  <script>
+    var canvas = document.getElementById("unity-canvas");
+    var container = document.getElementById("gameContainer");
+    var loadingBar = document.getElementById("loadingBar");
+
+    var buildUrl = "Build";
+    var config = {
+      dataUrl:         buildUrl + "/wacky-flip-v25050510.data.unityweb",
+      frameworkUrl:    buildUrl + "/wacky-flip-v25050510.framework.js",
+      codeUrl:         buildUrl + "/wacky-flip-v25050510.wasm.unityweb",
+      streamingAssetsUrl: "StreamingAssets",
+      companyName: "azgames.io",
+      productName: "Tung Sahur Horror",
+      productVersion: "25051505",
+      pubId: "",
+      gameId: "tung-sahur-horror",
+      enableMoreGame: "yes",
+      enablePromotion: true,
+      eventLog: false
+    };
+
+    function onResize() {
+      var w = window.innerWidth;
+      var h = window.innerHeight;
+      var r = 540 / 960;
+      if (w * r > h) w = Math.ceil(h / r);
+      h = Math.floor(w * r);
+      container.style.width  = canvas.style.width  = w + "px";
+      container.style.height = canvas.style.height = h + "px";
+      container.style.top  = Math.floor((window.innerHeight - h) / 2) + "px";
+      container.style.left = Math.floor((window.innerWidth  - w) / 2) + "px";
+    }
+    onResize();
+    window.addEventListener("resize", onResize);
+
+    var script = document.createElement("script");
+    script.src = buildUrl + "/wacky-flip-v25050510.loader.js";
+    script.onload = function() {
+      createUnityInstance(canvas, config, function(progress) {
+        document.getElementById("pct").innerText = Math.round(progress * 100) + "%";
+      }).then(function(instance) {
+        window.unityInstance = instance;
+        setTimeout(function() {
+          loadingBar.style.display = "none";
+          container.style.display = "block";
+          window.focus();
+        }, 2000);
+      }).catch(function(msg) {
+        alert(msg);
+      });
+    };
+    document.body.appendChild(script);
+  </script>
+</body>
+</html>

@@ -1,143 +1,98 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Survival Race Game</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #222;
-            color: #fff;
-            margin: 0;
-            padding: 0;
-        }
-
-        h1 {
-            margin-top: 20px;
-        }
-
-        #gameContainer {
-            position: relative;
-            width: 600px;
-            height: 400px;
-            margin: 20px auto;
-            background-color: #444;
-            overflow: hidden;
-            border: 2px solid #fff;
-        }
-
-        #player {
-            position: absolute;
-            bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 50px;
-            height: 50px;
-            background-color: #0f0;
-            border-radius: 5px;
-        }
-
-        #obstacle {
-            position: absolute;
-            top: 0;
-            width: 50px;
-            height: 50px;
-            background-color: #f00;
-            border-radius: 5px;
-        }
-
-        #score {
-            font-size: 20px;
-            margin-top: 10px;
-        }
-    </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Survival Race Multiplayer</title>
+<style>
+  body { margin:0; overflow:hidden; font-family:Arial; }
+  canvas { display:block; background:#222; }
+</style>
 </head>
 <body>
-    <h1>Survival Race</h1>
-    <div id="gameContainer">
-        <div id="player"></div>
-        <div id="obstacle"></div>
-    </div>
-    <div id="score">Score: 0</div>
-    <script>
-        const player = document.getElementById('player');
-        const obstacle = document.getElementById('obstacle');
-        const gameContainer = document.getElementById('gameContainer');
-        const scoreDisplay = document.getElementById('score');
+<canvas id="gameCanvas"></canvas>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const socket = io();
 
-        let gameInterval;
-        let obstacleInterval;
-        let score = 0;
-        let isGameOver = false;
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
 
-        let playerPosition = gameContainer.offsetWidth / 2 - 25;
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 
-        // Initialize obstacle position
-        resetObstacle();
+const players = {}; // store all players
+let myId = null;
 
-        document.addEventListener('keydown', movePlayer);
+// handle existing players
+socket.on('currentPlayers', (playersData) => {
+  for (let id in playersData) {
+    players[id] = playersData[id];
+  }
+  myId = socket.id;
+});
 
-        function movePlayer(e) {
-            const step = 20;
-            if (e.key === 'ArrowLeft') {
-                playerPosition = Math.max(0, playerPosition - step);
-                player.style.left = playerPosition + 'px';
-            } else if (e.key === 'ArrowRight') {
-                playerPosition = Math.min(gameContainer.offsetWidth - 50, playerPosition + step);
-                player.style.left = playerPosition + 'px';
-            }
-        }
+// handle new player
+socket.on('newPlayer', (playerData) => {
+  players[playerData.id] = playerData;
+});
 
-        function startGame() {
-            score = 0;
-            isGameOver = false;
-            scoreDisplay.innerText = 'Score: 0';
-            resetObstacle();
+// handle player movement
+socket.on('playerMoved', (playerData) => {
+  if (players[playerData.id]) {
+    players[playerData.id] = playerData;
+  }
+});
 
-            gameInterval = setInterval(updateGame, 20);
-            obstacleInterval = setInterval(resetObstacle, 2000);
-        }
+// remove disconnected player
+socket.on('removePlayer', (id) => {
+  delete players[id];
+});
 
-        function updateGame() {
-            if (isGameOver) return;
+// send movement data
+function sendPosition(x, y) {
+  socket.emit('move', { x, y });
+}
 
-            let obstacleY = parseFloat(obstacle.style.top);
-            obstacleY += 5; // speed of obstacle
-            obstacle.style.top = obstacleY + 'px';
+// Player controlled variables
+const speed = 5;
+const keys = {};
 
-            // Check for collision
-            if (
-                obstacleY + 50 >= gameContainer.offsetHeight - 50 &&
-                parseFloat(obstacle.style.left) < playerPosition + 50 &&
-                parseFloat(obstacle.style.left) + 50 > playerPosition
-            ) {
-                endGame();
-            }
+window.addEventListener('keydown', (e) => { keys[e.key] = true; });
+window.addEventListener('keyup', (e) => { keys[e.key] = false; });
 
-            // Increase score when obstacle passes bottom
-            if (obstacleY > gameContainer.offsetHeight) {
-                score++;
-                scoreDisplay.innerText = 'Score: ' + score;
-                resetObstacle();
-            }
-        }
+// game loop
+function gameLoop() {
+  let myPlayer = players[socket.id];
+  if (myPlayer) {
+    if (keys['ArrowLeft']) myPlayer.x -= speed;
+    if (keys['ArrowRight']) myPlayer.x += speed;
+    if (keys['ArrowUp']) myPlayer.y -= speed;
+    if (keys['ArrowDown']) myPlayer.y += speed;
+    // send position
+    sendPosition(myPlayer.x, myPlayer.y);
+  }
+  draw();
+  requestAnimationFrame(gameLoop);
+}
 
-        function resetObstacle() {
-            obstacle.style.left = Math.random() * (gameContainer.offsetWidth - 50) + 'px';
-            obstacle.style.top = '0px';
-        }
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  for (let id in players) {
+    const p = players[id];
+    ctx.fillStyle = id === socket.id ? 'lime' : 'red';
+    ctx.fillRect(p.x, p.y, 20, 20);
+  }
+}
 
-        function endGame() {
-            clearInterval(gameInterval);
-            clearInterval(obstacleInterval);
-            alert('Game Over! Your score: ' + score);
-            isGameOver = true;
-        }
+// start game loop
+gameLoop();
 
-        // Start game on load
-        window.onload = startGame;
-    </script>
+// resize handler
+window.addEventListener('resize', () => {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+});
+</script>
 </body>
 </html>

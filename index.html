@@ -1,114 +1,153 @@
-<!-- shxyder -->
-<!-- ultimate game stash file -->
+<!-- Ultimate Game Stash file--> 
+<!-- For the regularly updating doc go to https://docs.google.com/document/d/1_FmH3BlSBQI7FGgAQL59-ZPe8eCxs35wel6JUyVaG8Q/ -->
+
+
+
+
 <!DOCTYPE html>
 <html lang="en-us">
   <head>
+    <base href="https://cdn.jsdelivr.net/gh/web-ports/fnae@afd4e5071add297d6169665a4f999d62f312532e/">
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Five Nights at Shreks Hotel</title>
-    <link rel="shortcut icon" href="https://cdn.jsdelivr.net/gh/shayderrr/newports@501858e7d2d24dad4467463cdad972db0b19cd37/fivenightsatshrek/TemplateData/favicon.ico">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/shayderrr/newports@501858e7d2d24dad4467463cdad972db0b19cd37/fivenightsatshrek/TemplateData/style.css">
-    <style>	
-      @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@200;500&display=swap');	
-      @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@200;500&family=MuseoModerno:wght@600&display=swap');	
-    </style>
+    <title>Unity Web Player | Five Night's at BIG E</title>
+    <link rel="shortcut icon" href="TemplateData/favicon.ico">
+    <link rel="stylesheet" href="TemplateData/style.css">
   </head>
-  <body class="dark">
-    <div id="unity-container" class="unity-desktop">
-      <canvas id="unity-canvas"></canvas>
-    </div>
-    <div id="loading-cover" style="display:none;">
+  <body>
+  <div id="loading-text"
+    style="color: white; font-size: 48px; font-family: cursive; text-align: center; margin-top: 20px;"> LOADING...
+  </div>
+    <div id="unity-container">
+      <canvas id="unity-canvas" width=960 height=600 tabindex="-1"></canvas>
       <div id="unity-loading-bar">
-        <div id="unity-logo">	
-          <img src="https://cdn.jsdelivr.net/gh/shayderrr/newports@501858e7d2d24dad4467463cdad972db0b19cd37/fivenightsatshrek/logo.png">	
-          <br>	
-          <p id="loading-txt" style="text-align: center; font-family: 'MuseoModerno', cursive;color: white;font-size: 50px;margin-top: 0px;margin-bottom: 0px;" >Loading...</p>	
-        </div>
-        <div id="unity-progress-bar-empty" style="display: none;">
+        <div id="unity-logo"></div>
+        <div id="unity-progress-bar-empty">
           <div id="unity-progress-bar-full"></div>
         </div>
-        <div class="spinner"></div>
       </div>
     </div>
-    <div id="unity-fullscreen-button" style="display: none;"></div>
     <script>
-      const hideFullScreenButton = "";
-      const baseUrl = "https://cdn.jsdelivr.net/gh/shayderrr/newports@501858e7d2d24dad4467463cdad972db0b19cd37/fivenightsatshrek/Build/";
-      
-      const config = {
-        dataUrl: "",
-        frameworkUrl: baseUrl + "SREK.framework.js.unityweb",
-        codeUrl: baseUrl + "SREK.wasm.unityweb",
+var loadingText = document.querySelector("#loading-text");
+    let totalBytes = 0;
+    let loadedBytes = 0;
+
+    async function fetchWithProgress(url) {
+      const response = await fetch(url);
+      const reader = response.body.getReader();
+      let chunks = [];
+      let received = 0;
+      while (true) {
+        const {
+          done,
+          value
+        } = await reader.read();
+        if (done) break;
+        received += value.length;
+        loadedBytes += value.length;
+        chunks.push(value);
+        let mbDone = (loadedBytes / (1024 * 1024)).toFixed(2);
+        let mbTotal = '139.53';
+        loadingText.textContent = `LOADING... ${mbDone} MB / ${mbTotal} MB`;
+      }
+      let fullBuffer = new Uint8Array(received);
+      let offset = 0;
+      for (let chunk of chunks) {
+        fullBuffer.set(chunk, offset);
+        offset += chunk.length;
+      }
+      return fullBuffer.buffer;
+    }
+
+    async function mergeFiles(fileParts, cacheKey) {
+      const buffers = await Promise.all(
+        fileParts.map(part => fetchWithProgress(part))
+      );
+      const mergedBlob = new Blob(buffers);
+      return URL.createObjectURL(mergedBlob);
+    }
+
+    function getParts(file, start, end) {
+      let parts = [];
+      for (let i = start; i <= end; i++) {
+        parts.push(file + ".part" + i);
+      }
+      return parts;
+    }
+    (async () => {
+      const [dataUrl, wasmUrl, webm] = await Promise.all([
+        mergeFiles(getParts("Build/fnae.data", 1, 3), "fnae.data"),
+        mergeFiles(getParts("Build/fnae.wasm", 1, 2), "fnae.wasm"),
+        mergeFiles(getParts("StreamingAssets/202512191935.webm", 1, 3), "202512191935.webm"),
+      ]);
+
+window.randomwebm = webm;
+const realSrc = Object.getOwnPropertyDescriptor(
+  HTMLMediaElement.prototype,
+  "src"
+);
+
+Object.defineProperty(HTMLMediaElement.prototype, "src", {
+  set(value) {
+    if (typeof value === "string" && value.includes("202512191935.mp4")) {
+      value = window.randomwebm;
+    }
+    return realSrc.set.call(this, value);
+  },
+  get() {
+    return realSrc.get.call(this);
+  }
+});
+
+
+      var container = document.querySelector("#unity-container");
+      var canvas = document.querySelector("#unity-canvas");
+      var loadingBar = document.querySelector("#unity-loading-bar");
+      var progressBarFull = document.querySelector("#unity-progress-bar-full");
+      var warningBanner = document.querySelector("#unity-warning");
+
+      function unityShowBanner(msg, type) {
+
+      }
+
+      var buildUrl = "Build";
+      var loaderUrl = buildUrl + "/fnae.loader.js";
+      var config = {
+        arguments: [],
+        dataUrl: dataUrl,
+        frameworkUrl: buildUrl + "/fnae.framework.js",
+        codeUrl: wasmUrl,
         streamingAssetsUrl: "StreamingAssets",
-        companyName: "Evony Games",
-        productName: "Five Nights at Shreks Hotel",
-        productVersion: "0.1",
+        companyName: "DefaultCompany",
+        productName: "fnae",
+        productVersion: "1.0",
+        showBanner: unityShowBanner,
       };
 
-      const container = document.querySelector("#unity-container");
-      const canvas = document.querySelector("#unity-canvas");
-      const loadingCover = document.querySelector("#loading-cover");
-      const progressBarEmpty = document.querySelector("#unity-progress-bar-empty");
-      const progressBarFull = document.querySelector("#unity-progress-bar-full");
-      const fullscreenButton = document.querySelector("#unity-fullscreen-button");
-      const spinner = document.querySelector('.spinner');
-
-      const canFullscreen = (function() {
-        for (const key of [
-            'exitFullscreen',
-            'webkitExitFullscreen',
-            'webkitCancelFullScreen',
-            'mozCancelFullScreen',
-            'msExitFullscreen',
-          ]) {
-          if (key in document) {
-            return true;
-          }
-        }
-        return false;
-      }());
-
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-        container.className = "unity-mobile";
-        config.devicePixelRatio = 1;
+        var meta = document.createElement('meta');
+        meta.name = 'viewport';
+        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+        document.getElementsByTagName('head')[0].appendChild(meta);
       }
-      loadingCover.style.display = "";
 
-      const partUrls = [
-        baseUrl + "SREK.data.unityweb.part1",
-        baseUrl + "SREK.data.unityweb.part2",
-        baseUrl + "SREK.data.unityweb.part3"
-      ];
 
-      Promise.all(partUrls.map(url => fetch(url).then(res => res.arrayBuffer())))
-        .then(buffers => {
-          const blob = new Blob(buffers, { type: 'application/octet-stream' });
-          config.dataUrl = URL.createObjectURL(blob);
+      loadingBar.style.display = "block";
 
-          const script = document.createElement("script");
-          script.src = baseUrl + "SREK.loader.js";
-          script.onload = () => {
-            createUnityInstance(canvas, config, (progress) => {
-              spinner.style.display = "none";
-              progressBarEmpty.style.display = "";
-              progressBarFull.style.width = `${100 * progress}%`;
-            }).then((unityInstance) => {
-              loadingCover.style.display = "none";
-              if (canFullscreen) {
-                if (!hideFullScreenButton) {
-                  fullscreenButton.style.display = "";
-                }
-                fullscreenButton.onclick = () => {
-                  unityInstance.SetFullscreen(1);
-                };
-              }
-            }).catch((message) => {
-              alert(message);
-            });
-          };
-          document.body.appendChild(script);
+      var script = document.createElement("script");
+      script.src = loaderUrl;
+      script.onload = () => {
+        createUnityInstance(canvas, config, (progress) => {
+          progressBarFull.style.width = 100 * progress + "%";
+        }).then((unityInstance) => {
+          loadingBar.style.display = "none";
+          loadingText.remove();
+        }).catch((message) => {
+          alert(message);
         });
+      };
+      document.body.appendChild(script);
+    })();
     </script>
   </body>
 </html>

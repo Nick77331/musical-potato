@@ -11,6 +11,7 @@
 </head>
 <body>
 <canvas id="gameCanvas"></canvas>
+
 <script src="/socket.io/socket.io.js"></script>
 <script>
 const socket = io();
@@ -21,10 +22,9 @@ const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-const players = {}; // store all players
+const players = {};
 let myId = null;
 
-// handle existing players
 socket.on('currentPlayers', (playersData) => {
   for (let id in playersData) {
     players[id] = playersData[id];
@@ -32,44 +32,37 @@ socket.on('currentPlayers', (playersData) => {
   myId = socket.id;
 });
 
-// handle new player
 socket.on('newPlayer', (playerData) => {
   players[playerData.id] = playerData;
 });
 
-// handle player movement
 socket.on('playerMoved', (playerData) => {
   if (players[playerData.id]) {
     players[playerData.id] = playerData;
   }
 });
 
-// remove disconnected player
 socket.on('removePlayer', (id) => {
   delete players[id];
 });
 
-// send movement data
 function sendPosition(x, y) {
   socket.emit('move', { x, y });
 }
 
-// Player controlled variables
 const speed = 5;
 const keys = {};
 
 window.addEventListener('keydown', (e) => { keys[e.key] = true; });
 window.addEventListener('keyup', (e) => { keys[e.key] = false; });
 
-// game loop
 function gameLoop() {
-  let myPlayer = players[socket.id];
+  const myPlayer = players[socket.id];
   if (myPlayer) {
     if (keys['ArrowLeft']) myPlayer.x -= speed;
     if (keys['ArrowRight']) myPlayer.x += speed;
     if (keys['ArrowUp']) myPlayer.y -= speed;
     if (keys['ArrowDown']) myPlayer.y += speed;
-    // send position
     sendPosition(myPlayer.x, myPlayer.y);
   }
   draw();
@@ -85,14 +78,12 @@ function draw() {
   }
 }
 
-// start game loop
-gameLoop();
-
-// resize handler
 window.addEventListener('resize', () => {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
 });
+
+gameLoop();
 </script>
 </body>
 </html>
